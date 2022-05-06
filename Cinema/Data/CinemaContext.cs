@@ -6,6 +6,7 @@ namespace CinemaClient.Data;
 public class CinemaContext : DbContext
 {
     public DbSet<CinemaRoom> Rooms { get; set; } = null!;
+    public DbSet<MovieScreening> Screenings { get; set; } = null!;
     public DbSet<Spectator> Spectators { get; set; } = null!;
     public DbSet<Movie> Movies { get; set; } = null!;
     public DbSet<Ticket> Tickets { get; set; } = null!;
@@ -22,8 +23,11 @@ public class CinemaContext : DbContext
         var movie = modelBuilder.Entity<Movie>();
         var spectator = modelBuilder.Entity<Spectator>();
         var ticket = modelBuilder.Entity<Ticket>();
-        ticket.HasOne(t => t.Room).WithMany().HasForeignKey(t => t.RoomId);
+        ticket.HasOne(t => t.Screening).WithMany().HasForeignKey(t => t.ScreeningId);
         ticket.HasOne(t => t.Spectator).WithMany().HasForeignKey(t => t.SpectatorId);
+        var screening = modelBuilder.Entity<MovieScreening>();
+        screening.HasOne(s => s.Room).WithMany().HasForeignKey(s => s.RoomId).OnDelete(DeleteBehavior.NoAction);
+        screening.HasOne(s => s.Movie).WithMany().HasForeignKey(s => s.MovieId).OnDelete(DeleteBehavior.NoAction);
 
         room.HasData(
             new CinemaRoom { Id = 1, MovieId = 1, Capacity = 3 },
@@ -54,11 +58,17 @@ public class CinemaContext : DbContext
             Genre = "Horror",
             Duration = 108,
         });
+        screening.HasData(new MovieScreening
+        {
+            Id = 1,
+            RoomId = 1,
+            MovieId = 1,
+        });
         ticket.HasData(new Ticket
         {
             Id = 1,
             Seat = "1A",
-            RoomId = 1,
+            ScreeningId = 1,
             SpectatorId = 1,
             Price = 9.9m,
         });
