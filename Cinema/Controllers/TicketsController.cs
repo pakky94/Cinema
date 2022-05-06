@@ -22,7 +22,10 @@ namespace CinemaClient.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var cinemaContext = _context.Tickets.Include(t => t.Screening).Include(t => t.Spectator);
+            var cinemaContext = _context.Tickets
+                .Include(t => t.Screening)
+                .ThenInclude(s => s.Movie)
+                .Include(t => t.Spectator);
             return View(await cinemaContext.ToListAsync());
         }
 
@@ -35,6 +38,7 @@ namespace CinemaClient.Controllers
 
             var ticket = await _context.Tickets
                 .Include(t => t.Screening)
+                .ThenInclude(s => s.Movie)
                 .Include(t => t.Spectator)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticket == null)
