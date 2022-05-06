@@ -24,6 +24,10 @@
         </dd>
     </dl>
 </div>
+@if (Model.CurrentScreening is not null)
+{
+    @await Html.PartialAsync("ScreeningDetails", Model.CurrentScreening)
+}
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>

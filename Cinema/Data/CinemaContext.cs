@@ -19,11 +19,12 @@ public class CinemaContext : DbContext
     {
         var room = modelBuilder.Entity<CinemaRoom>();
         room.HasOne(r => r.Movie).WithMany().HasForeignKey(r => r.MovieId);
+        room.HasOne(r => r.CurrentScreening).WithOne().HasForeignKey<MovieScreening>(r => r.RoomId);
 
         var movie = modelBuilder.Entity<Movie>();
         var spectator = modelBuilder.Entity<Spectator>();
         var ticket = modelBuilder.Entity<Ticket>();
-        ticket.HasOne(t => t.Screening).WithMany().HasForeignKey(t => t.ScreeningId);
+        ticket.HasOne(t => t.Screening).WithMany(s => s.Tickets).HasForeignKey(t => t.ScreeningId);
         ticket.HasOne(t => t.Spectator).WithMany().HasForeignKey(t => t.SpectatorId);
         var screening = modelBuilder.Entity<MovieScreening>();
         screening.HasOne(s => s.Room).WithMany().HasForeignKey(s => s.RoomId).OnDelete(DeleteBehavior.NoAction);

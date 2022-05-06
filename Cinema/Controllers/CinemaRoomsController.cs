@@ -8,23 +8,28 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CinemaClient.Data;
 using CinemaClient.Domain;
+using CinemaClient.Services;
 
 namespace CinemaClient.Controllers;
 
 public class CinemaRoomsController : Controller
 {
-    private readonly CinemaContext _context;
+    private readonly IRoomService _roomService;
+    private readonly IMovieService _movieService;
+    private readonly IScreeningService _screeningService;
 
-    public CinemaRoomsController(CinemaContext context)
+    public CinemaRoomsController(IRoomService roomService, IMovieService movieService, IScreeningService screeningService)
     {
-        _context = context;
+        _roomService = roomService;
+        _movieService = movieService;
+        _screeningService = screeningService;
     }
 
     // GET: CinemaRooms
     public async Task<IActionResult> Index()
     {
-        var cinemaContext = _context.Rooms.Include(c => c.Movie);
-        return View(await cinemaContext.ToListAsync());
+        var rooms = await _roomService.GetAll();
+        return View(rooms);
     }
 
     // GET: CinemaRooms/Details/5
@@ -35,9 +40,7 @@ public class CinemaRoomsController : Controller
             return NotFound();
         }
 
-        var cinemaRoom = await _context.Rooms
-            .Include(c => c.Movie)
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var cinemaRoom = await _roomService.GetById((int)id);
         if (cinemaRoom == null)
         {
             return NotFound();
@@ -47,9 +50,9 @@ public class CinemaRoomsController : Controller
     }
 
     // GET: CinemaRooms/Create
-    public IActionResult Create()
+    public async Task<IActionResult> CreateAsync()
     {
-        ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id");
+        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title");
         return View();
     }
 
@@ -62,11 +65,10 @@ public class CinemaRoomsController : Controller
     {
         if (ModelState.IsValid)
         {
-            _context.Add(cinemaRoom);
-            await _context.SaveChangesAsync();
+            _roomService.Create(cinemaRoom);
             return RedirectToAction(nameof(Index));
         }
-        ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", cinemaRoom.MovieId);
+        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title", cinemaRoom.MovieId);
         return View(cinemaRoom);
     }
 
@@ -78,12 +80,12 @@ public class CinemaRoomsController : Controller
             return NotFound();
         }
 
-        var cinemaRoom = await _context.Rooms.FindAsync(id);
+        var cinemaRoom = await _roomService.GetById((int)id);
         if (cinemaRoom == null)
         {
             return NotFound();
         }
-        ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", cinemaRoom.MovieId);
+        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title", cinemaRoom.MovieId);
         return View(cinemaRoom);
     }
 
@@ -103,12 +105,11 @@ public class CinemaRoomsController : Controller
         {
             try
             {
-                _context.Update(cinemaRoom);
-                await _context.SaveChangesAsync();
+                _roomService.Update(cinemaRoom);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CinemaRoomExists(cinemaRoom.Id))
+                if (!await CinemaRoomExists(cinemaRoom.Id))
                 {
                     return NotFound();
                 }
@@ -119,8 +120,14 @@ public class CinemaRoomsController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", cinemaRoom.MovieId);
+        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title", cinemaRoom.MovieId);
         return View(cinemaRoom);
+    }
+
+    private async Task<bool> CinemaRoomExists(int id)
+    {
+        var room = await _roomService.GetById(id);
+        return room is not null;
     }
 
     // GET: CinemaRooms/Delete/5
@@ -131,9 +138,7 @@ public class CinemaRoomsController : Controller
             return NotFound();
         }
 
-        var cinemaRoom = await _context.Rooms
-            .Include(c => c.Movie)
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var cinemaRoom = await _roomService.GetById((int)id);
         if (cinemaRoom == null)
         {
             return NotFound();
@@ -147,14 +152,7 @@ public class CinemaRoomsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var cinemaRoom = await _context.Rooms.FindAsync(id);
-        _context.Rooms.Remove(cinemaRoom);
-        await _context.SaveChangesAsync();
+        await _roomService.Delete(id);
         return RedirectToAction(nameof(Index));
-    }
-
-    private bool CinemaRoomExists(int id)
-    {
-        return _context.Rooms.Any(e => e.Id == id);
     }
 }

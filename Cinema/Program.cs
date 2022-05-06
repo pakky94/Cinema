@@ -1,4 +1,5 @@
 using CinemaClient.Data;
+using CinemaClient.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<CinemaContext>(context =>
     context.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<ISpectatorService, SpectatorService>();
+builder.Services.AddScoped<IScreeningService, ScreeningService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 
 var app = builder.Build();
 
