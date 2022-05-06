@@ -1,26 +1,38 @@
 ﻿@model CinemaClient.Domain.MovieScreening
 
 <div>
-    <h4>MovieScreening</h4>
+    <h4>Proiezione</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Movie)
+            Film
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Movie.Id)
+            @Html.DisplayFor(model => model.Movie.Title)
         </dd>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Id)
-        </dd>
+        <dt class = "col-sm-2">
+            Prezzo
+        </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Price)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Time)
+            Orario
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Time)
         </dd>
     </dl>
+    @if (Model.IsFull)
+    {
+         <div>
+            <h4 class="text-danger">Sala al completo</h4>
+         </div>
+    } else
+    {
+        <div>
+            <h5>Posti disponibili: @Model.EmptySeats/@Model.Room.Capacity</h5>
+            @Html.ActionLink("Aggiungi spettatore", "AddSpectator", "Screenings", new { id = Model.Id }, new {Class = "btn btn-primary"})
+        </div>
+    }
 </div>

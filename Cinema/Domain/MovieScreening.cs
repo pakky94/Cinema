@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CinemaClient.Domain;
 
@@ -14,4 +15,9 @@ public class MovieScreening
     public decimal Price { get; set; }
 
     public ICollection<Ticket>? Tickets { get; set; }
+
+    [JsonIgnore]
+    public bool IsFull { get => Room?.Capacity <= Tickets?.Count; }
+    [JsonIgnore]
+    public int EmptySeats { get => Room?.Capacity - Tickets?.Count ?? 0; }
 }

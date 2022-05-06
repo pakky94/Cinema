@@ -1,0 +1,36 @@
+﻿@model AddSpectatorViewModel
+
+@{
+    ViewBag.Title = "Add Spectator";
+}
+
+
+<h1>Aggiungi Spettatore</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddSpectator">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="SpectatorId" class="control-label"></label>
+                <select asp-for="SpectatorId" class ="form-control">
+                    @foreach (var spectator in Model.Spectators) {
+                        <option value="@spectator.Id">@spectator.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Aggiungi" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

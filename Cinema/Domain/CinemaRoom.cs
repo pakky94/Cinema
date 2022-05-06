@@ -4,8 +4,6 @@ public class CinemaRoom
 {
     public int Id { get; set; }
     public int Capacity { get; set; }
-    public int MovieId { get; set; }
-    public Movie? Movie { get; set; }
     public int? CurrentScreeningId { get; set; }
     public MovieScreening? CurrentScreening { get; set; }
 

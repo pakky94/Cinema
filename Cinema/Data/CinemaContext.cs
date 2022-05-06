@@ -18,7 +18,6 @@ public class CinemaContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var room = modelBuilder.Entity<CinemaRoom>();
-        room.HasOne(r => r.Movie).WithMany().HasForeignKey(r => r.MovieId);
         room.HasOne(r => r.CurrentScreening).WithOne().HasForeignKey<MovieScreening>(r => r.RoomId);
 
         var movie = modelBuilder.Entity<Movie>();
@@ -31,8 +30,8 @@ public class CinemaContext : DbContext
         screening.HasOne(s => s.Movie).WithMany().HasForeignKey(s => s.MovieId).OnDelete(DeleteBehavior.NoAction);
 
         room.HasData(
-            new CinemaRoom { Id = 1, MovieId = 1, Capacity = 3 },
-            new CinemaRoom { Id = 2, MovieId = 3, Capacity = 5 }
+            new CinemaRoom { Id = 1, Capacity = 3 },
+            new CinemaRoom { Id = 2, Capacity = 5 }
             );
         movie.HasData(new Movie
         {

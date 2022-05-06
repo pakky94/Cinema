@@ -7,8 +7,20 @@ public class Spectator
     public string Surname { get; set; } = string.Empty;
     public DateTime BirthDate { get; set; }
 
-    internal decimal PriceMultiplier()
+    public int Age(DateTime now)
     {
-        throw new NotImplementedException();
+        return now.Year - BirthDate.Year;
+    }
+
+    public decimal PriceMultiplier(DateTime now)
+    {
+        var age = Age(now);
+        if (age > 70)
+            return 0.9m;
+
+        if (age < 5)
+            return 0.5m;
+
+        return 1m;
     }
 }

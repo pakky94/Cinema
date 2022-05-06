@@ -8,26 +8,34 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CinemaClient.Data;
 using CinemaClient.Domain;
+using CinemaClient.Services;
+using CinemaClient.Models;
 
 namespace CinemaClient.Controllers
 {
     public class ScreeningsController : Controller
     {
-        private readonly CinemaContext _context;
+        private readonly IScreeningService _screeningService;
+        private readonly ISpectatorService _spectatorService;
+        private readonly IRoomService _roomService;
+        private readonly IMovieService _movieService;
 
-        public ScreeningsController(CinemaContext context)
+        public ScreeningsController(IScreeningService screeningService, ISpectatorService spectatorService,
+            IRoomService roomService,
+            IMovieService movieService)
         {
-            _context = context;
+            _screeningService = screeningService;
+            _spectatorService = spectatorService;
+            _roomService = roomService;
+            _movieService = movieService;
         }
 
-        // GET: Screenings
         public async Task<IActionResult> Index()
         {
-            var cinemaContext = _context.Screenings.Include(m => m.Movie).Include(m => m.Room);
-            return View(await cinemaContext.ToListAsync());
+            var screenings = await _screeningService.GetAll();
+            return View(screenings);
         }
 
-        // GET: Screenings/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,10 +43,7 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var movieScreening = await _context.Screenings
-                .Include(m => m.Movie)
-                .Include(m => m.Room)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var movieScreening = await _screeningService.GetById((int)id);
             if (movieScreening == null)
             {
                 return NotFound();
@@ -47,33 +52,27 @@ namespace CinemaClient.Controllers
             return View(movieScreening);
         }
 
-        // GET: Screenings/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id");
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id");
+            ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title");
+            ViewData["RoomId"] = new SelectList(await _roomService.GetAll(), "Id", "Id");
             return View();
         }
 
-        // POST: Screenings/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MovieScreening movieScreening)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(movieScreening);
-                await _context.SaveChangesAsync();
+                await _screeningService.Create(movieScreening);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", movieScreening.MovieId);
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", movieScreening.RoomId);
+            ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title");
+            ViewData["RoomId"] = new SelectList(await _roomService.GetAll(), "Id", "Id");
             return View(movieScreening);
         }
 
-        // GET: Screenings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,19 +80,16 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var movieScreening = await _context.Screenings.FindAsync(id);
+            var movieScreening = await _screeningService.GetById((int)id);
             if (movieScreening == null)
             {
                 return NotFound();
             }
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", movieScreening.MovieId);
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", movieScreening.RoomId);
+            ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title");
+            ViewData["RoomId"] = new SelectList(await _roomService.GetAll(), "Id", "Id");
             return View(movieScreening);
         }
 
-        // POST: Screenings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MovieScreening movieScreening)
@@ -107,8 +103,7 @@ namespace CinemaClient.Controllers
             {
                 try
                 {
-                    _context.Update(movieScreening);
-                    await _context.SaveChangesAsync();
+                    await _screeningService.Update(movieScreening);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -123,12 +118,11 @@ namespace CinemaClient.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", movieScreening.MovieId);
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", movieScreening.RoomId);
+            ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title");
+            ViewData["RoomId"] = new SelectList(await _roomService.GetAll(), "Id", "Id");
             return View(movieScreening);
         }
 
-        // GET: Screenings/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,10 +130,7 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var movieScreening = await _context.Screenings
-                .Include(m => m.Movie)
-                .Include(m => m.Room)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var movieScreening = await _screeningService.GetById((int)id);
             if (movieScreening == null)
             {
                 return NotFound();
@@ -148,20 +139,58 @@ namespace CinemaClient.Controllers
             return View(movieScreening);
         }
 
-        // POST: Screenings/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var movieScreening = await _context.Screenings.FindAsync(id);
-            _context.Screenings.Remove(movieScreening);
-            await _context.SaveChangesAsync();
+            await _screeningService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
         private bool MovieScreeningExists(int id)
         {
-            return _context.Screenings.Any(e => e.Id == id);
+            var screening = _screeningService.GetById(id);
+            return screening is not null;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddSpectator(int id)
+        {
+            var screening = await _screeningService.GetById(id);
+            var spectators = await _spectatorService.GetAll();
+            return View(new AddSpectatorViewModel(screening, spectators, null));
+        }
+
+        [HttpPost, ActionName("AddSpectator")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddSpectatorPost(int id, int spectatorId)
+        {
+            var screening = await _screeningService.GetById(id);
+            var spectator = await _spectatorService.GetById(spectatorId);
+
+            if (screening == null)
+                return NotFound("Screening not found");
+            if (spectator == null)
+                return NotFound("Spectator not found");
+
+            if (!SpectatorCanViewMovie(spectator, screening.Movie)) 
+            {
+                ModelState.AddModelError("Ticket.SpectatorId", "Spectator cannot view this movie");
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _screeningService.AddSpectator(screening.Id, spectator.Id);
+                return RedirectToAction("Details", new { id });
+            }
+
+            return View("AddSpectator", new AddSpectatorViewModel(screening, await _spectatorService.GetAll(), spectatorId));
+        }
+
+        private bool SpectatorCanViewMovie(Spectator spectator, Movie movie)
+        {
+            var age = DateTime.Now.Year - spectator.BirthDate.Year;
+            return !string.Equals(movie.Genre, "Horror") || age >= 14;
         }
     }
 }

@@ -45,6 +45,8 @@ public class CinemaRoomsController : Controller
         {
             return NotFound();
         }
+        var screening = await _screeningService.GetById((int)cinemaRoom.CurrentScreeningId);
+        cinemaRoom.CurrentScreening = screening;
 
         return View(cinemaRoom);
     }
@@ -52,7 +54,7 @@ public class CinemaRoomsController : Controller
     // GET: CinemaRooms/Create
     public async Task<IActionResult> CreateAsync()
     {
-        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title");
+        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title");
         return View();
     }
 
@@ -61,14 +63,14 @@ public class CinemaRoomsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Capacity,MovieId")] CinemaRoom cinemaRoom)
+    public async Task<IActionResult> Create(CinemaRoom cinemaRoom)
     {
         if (ModelState.IsValid)
         {
-            _roomService.Create(cinemaRoom);
+            await _roomService.Create(cinemaRoom);
             return RedirectToAction(nameof(Index));
         }
-        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title", cinemaRoom.MovieId);
+        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title", cinemaRoom.CurrentScreeningId);
         return View(cinemaRoom);
     }
 
@@ -85,7 +87,7 @@ public class CinemaRoomsController : Controller
         {
             return NotFound();
         }
-        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title", cinemaRoom.MovieId);
+        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title", cinemaRoom.CurrentScreeningId);
         return View(cinemaRoom);
     }
 
@@ -94,7 +96,7 @@ public class CinemaRoomsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Capacity,MovieId")] CinemaRoom cinemaRoom)
+    public async Task<IActionResult> Edit(int id, CinemaRoom cinemaRoom)
     {
         if (id != cinemaRoom.Id)
         {
@@ -105,7 +107,7 @@ public class CinemaRoomsController : Controller
         {
             try
             {
-                _roomService.Update(cinemaRoom);
+                await _roomService.Update(cinemaRoom);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -120,7 +122,7 @@ public class CinemaRoomsController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        ViewData["MovieId"] = new SelectList(await _movieService.GetAll(), "Id", "Title", cinemaRoom.MovieId);
+        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title", cinemaRoom.CurrentScreeningId);
         return View(cinemaRoom);
     }
 
