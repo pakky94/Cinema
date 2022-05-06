@@ -161,6 +161,13 @@ namespace CinemaClient.Controllers
             return View(new AddSpectatorViewModel(screening, spectators, null));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Empty(int id)
+        {
+            await _screeningService.EmptyScreening(id);
+            return RedirectToAction("Index");
+        }
+
         [HttpPost, ActionName("AddSpectator")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddSpectatorPost(int id, int spectatorId)

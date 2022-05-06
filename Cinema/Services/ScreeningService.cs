@@ -15,6 +15,7 @@ public interface IScreeningService
     Task Create(MovieScreening screening);
     Task Update(MovieScreening screening);
     Task Delete(int screeningId);
+    Task EmptyScreening(int screeningId);
 }
 
 public class ScreeningService : IScreeningService
@@ -80,6 +81,13 @@ public class ScreeningService : IScreeningService
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
         return ticket;
+    }
+
+    public async Task EmptyScreening(int screeningId)
+    {
+        var tickets = _context.Tickets.Where(t => t.ScreeningId == screeningId);
+        _context.Tickets.RemoveRange(tickets);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<decimal> TotalEarnings(int screeningId)
