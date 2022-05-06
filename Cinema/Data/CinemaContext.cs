@@ -21,9 +21,9 @@ public class CinemaContext : DbContext
 
         var movie = modelBuilder.Entity<Movie>();
         var spectator = modelBuilder.Entity<Spectator>();
-        spectator.HasOne(s => s.Ticket).WithOne().HasForeignKey<Spectator>(s => s.TicketId);
         var ticket = modelBuilder.Entity<Ticket>();
         ticket.HasOne(t => t.Room).WithMany().HasForeignKey(t => t.RoomId);
+        ticket.HasOne(t => t.Spectator).WithMany().HasForeignKey(t => t.SpectatorId);
 
         room.HasData(
             new CinemaRoom { Id = 1, MovieId = 1, Capacity = 3 },
@@ -59,6 +59,7 @@ public class CinemaContext : DbContext
             Id = 1,
             Seat = "1A",
             RoomId = 1,
+            SpectatorId = 1,
             Price = 9.9m,
         });
         spectator.HasData(new Spectator
@@ -66,7 +67,6 @@ public class CinemaContext : DbContext
             Id = 1,
             Name = "Marco",
             Surname = "Pacchialat",
-            TicketId = 1,
             BirthDate = new DateTime(1994, 2, 14),
         });
     }

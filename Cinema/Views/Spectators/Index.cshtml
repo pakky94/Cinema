@@ -21,9 +21,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.BirthDate)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ticket)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -37,10 +34,7 @@
                 @Html.DisplayFor(modelItem => item.Surname)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BirthDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ticket.Id)
+                @item.BirthDate.ToShortDateString()
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

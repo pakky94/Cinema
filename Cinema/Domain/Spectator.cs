@@ -6,6 +6,4 @@ public class Spectator
     public string Name { get; set; } = string.Empty;
     public string Surname { get; set; } = string.Empty;
     public DateTime BirthDate { get; set; }
-    public int TicketId { get; set; }
-    public Ticket? Ticket { get; set; }
 }

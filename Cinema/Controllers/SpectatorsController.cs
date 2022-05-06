@@ -23,8 +23,8 @@ namespace CinemaClient.Controllers
         // GET: Spectators
         public async Task<IActionResult> Index()
         {
-            var cinemaContext = _context.Spectators.Include(s => s.Ticket);
-            return View(await cinemaContext.ToListAsync());
+            var spectators = await _context.Spectators.ToListAsync();
+            return View(spectators);
         }
 
         // GET: Spectators/Details/5
@@ -36,7 +36,6 @@ namespace CinemaClient.Controllers
             }
 
             var spectator = await _context.Spectators
-                .Include(s => s.Ticket)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (spectator == null)
             {
@@ -49,7 +48,6 @@ namespace CinemaClient.Controllers
         // GET: Spectators/Create
         public IActionResult Create()
         {
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Id");
             return View();
         }
 
@@ -66,7 +64,6 @@ namespace CinemaClient.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Id", spectator.TicketId);
             return View(spectator);
         }
 
@@ -83,7 +80,6 @@ namespace CinemaClient.Controllers
             {
                 return NotFound();
             }
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Id", spectator.TicketId);
             return View(spectator);
         }
 
@@ -119,7 +115,6 @@ namespace CinemaClient.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Id", spectator.TicketId);
             return View(spectator);
         }
 
@@ -132,7 +127,6 @@ namespace CinemaClient.Controllers
             }
 
             var spectator = await _context.Spectators
-                .Include(s => s.Ticket)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (spectator == null)
             {

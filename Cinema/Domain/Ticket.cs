@@ -5,6 +5,8 @@ namespace CinemaClient.Domain;
 public class Ticket
 {
     public int Id { get; set; }
+    public int SpectatorId { get; set; }
+    public Spectator? Spectator { get; set; }
     public int RoomId { get; set; }
     public CinemaRoom? Room { get; set; }
     public string Seat { get; set; } = string.Empty;
