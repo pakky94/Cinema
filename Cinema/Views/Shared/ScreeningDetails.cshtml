@@ -33,7 +33,7 @@
         <div>
             <h5>Posti disponibili: @Model.EmptySeats/@Model.Room.Capacity</h5>
             @Html.ActionLink("Aggiungi spettatore", "AddSpectator", "Screenings", new { id = Model.Id }, new {Class = "btn btn-primary"})
-            @Html.ActionLink("Svuota Sala", "Empty", "Screenings", new { id = Model.Id }, new {Class = "btn btn-danger"})
         </div>
     }
+    @Html.ActionLink("Svuota Sala", "Empty", "Screenings", new { id = Model.Id }, new {Class = "btn btn-danger"})
 </div>

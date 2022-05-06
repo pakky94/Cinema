@@ -16,7 +16,7 @@
                 <label asp-for="SpectatorId" class="control-label"></label>
                 <select asp-for="SpectatorId" class ="form-control">
                     @foreach (var spectator in Model.Spectators) {
-                        <option value="@spectator.Id">@spectator.Name</option>
+                        <option value="@spectator.Id">@spectator.FullName()</option>
                     }
                 </select>
             </div>

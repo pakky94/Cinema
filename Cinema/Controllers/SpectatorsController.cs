@@ -8,21 +8,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CinemaClient.Data;
 using CinemaClient.Domain;
+using CinemaClient.Services;
 
 namespace CinemaClient.Controllers
 {
     public class SpectatorsController : Controller
     {
-        private readonly CinemaContext _context;
+        private readonly ISpectatorService _spectatorService;
 
-        public SpectatorsController(CinemaContext context)
+        public SpectatorsController(ISpectatorService spectatorService)
         {
-            _context = context;
+            _spectatorService = spectatorService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var spectators = await _context.Spectators.ToListAsync();
+            var spectators = await _spectatorService.GetAll();
             return View(spectators);
         }
 
@@ -33,8 +34,7 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var spectator = await _context.Spectators
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var spectator = await _spectatorService.GetById((int)id);
             if (spectator == null)
             {
                 return NotFound();
@@ -54,8 +54,7 @@ namespace CinemaClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(spectator);
-                await _context.SaveChangesAsync();
+                await _spectatorService.Create(spectator);
                 return RedirectToAction(nameof(Index));
             }
             return View(spectator);
@@ -68,7 +67,7 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var spectator = await _context.Spectators.FindAsync(id);
+            var spectator = await _spectatorService.GetById((int)id);
             if (spectator == null)
             {
                 return NotFound();
@@ -89,12 +88,11 @@ namespace CinemaClient.Controllers
             {
                 try
                 {
-                    _context.Update(spectator);
-                    await _context.SaveChangesAsync();
+                    await _spectatorService.Update(spectator);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SpectatorExists(spectator.Id))
+                    if (!await SpectatorExistsAsync(spectator.Id))
                     {
                         return NotFound();
                     }
@@ -108,15 +106,9 @@ namespace CinemaClient.Controllers
             return View(spectator);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var spectator = await _context.Spectators
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var spectator = await _spectatorService.GetById(id);
             if (spectator == null)
             {
                 return NotFound();
@@ -129,15 +121,14 @@ namespace CinemaClient.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var spectator = await _context.Spectators.FindAsync(id);
-            _context.Spectators.Remove(spectator);
-            await _context.SaveChangesAsync();
+            await _spectatorService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SpectatorExists(int id)
+        private async Task<bool> SpectatorExistsAsync(int id)
         {
-            return _context.Spectators.Any(e => e.Id == id);
+            var spectator = await _spectatorService.GetById(id);
+            return spectator is not null;
         }
     }
 }
