@@ -180,8 +180,8 @@ namespace CinemaClient.Controllers
 
             if (ModelState.IsValid)
             {
-                await _screeningService.AddSpectator(screening.Id, spectator.Id);
-                return RedirectToAction("Details", new { id });
+                var ticket = await _screeningService.AddSpectator(screening.Id, spectator.Id);
+                return RedirectToAction("Details", "Tickets", new { Id = ticket.Id });
             }
 
             return View("AddSpectator", new AddSpectatorViewModel(screening, await _spectatorService.GetAll(), spectatorId));

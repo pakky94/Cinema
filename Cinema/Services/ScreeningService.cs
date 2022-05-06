@@ -8,7 +8,7 @@ namespace CinemaClient.Services;
 
 public interface IScreeningService
 {
-    Task AddSpectator(int screeningId, int spectatorId);
+    Task<Ticket> AddSpectator(int screeningId, int spectatorId);
     Task<MovieScreening?> GetById(int screeningId);
     Task<decimal> TotalEarnings(int screeningId);
     Task<IEnumerable<MovieScreening>> GetAll();
@@ -45,7 +45,7 @@ public class ScreeningService : IScreeningService
         return screening;
     }
 
-    public async Task AddSpectator(int screeningId, int spectatorId)
+    public async Task<Ticket> AddSpectator(int screeningId, int spectatorId)
     {
         var screening = await _context.Screenings
             .Include(s => s.Room)
@@ -79,6 +79,7 @@ public class ScreeningService : IScreeningService
 
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
+        return ticket;
     }
 
     public async Task<decimal> TotalEarnings(int screeningId)
