@@ -175,7 +175,7 @@ namespace CinemaClient.Controllers
 
             if (!SpectatorCanViewMovie(spectator, screening.Movie)) 
             {
-                ModelState.AddModelError("Ticket.SpectatorId", "Spectator cannot view this movie");
+                ModelState.AddModelError("Ticket.SpectatorId", "Lo spettatore non può vedere questo film");
             }
 
             if (ModelState.IsValid)

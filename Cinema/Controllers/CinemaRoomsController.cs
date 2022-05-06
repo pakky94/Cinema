@@ -25,14 +25,12 @@ public class CinemaRoomsController : Controller
         _screeningService = screeningService;
     }
 
-    // GET: CinemaRooms
     public async Task<IActionResult> Index()
     {
         var rooms = await _roomService.GetAll();
         return View(rooms);
     }
 
-    // GET: CinemaRooms/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -51,16 +49,12 @@ public class CinemaRoomsController : Controller
         return View(cinemaRoom);
     }
 
-    // GET: CinemaRooms/Create
     public async Task<IActionResult> CreateAsync()
     {
         ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title");
         return View();
     }
 
-    // POST: CinemaRooms/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CinemaRoom cinemaRoom)
@@ -74,7 +68,6 @@ public class CinemaRoomsController : Controller
         return View(cinemaRoom);
     }
 
-    // GET: CinemaRooms/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -91,9 +84,6 @@ public class CinemaRoomsController : Controller
         return View(cinemaRoom);
     }
 
-    // POST: CinemaRooms/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CinemaRoom cinemaRoom)
@@ -132,7 +122,6 @@ public class CinemaRoomsController : Controller
         return room is not null;
     }
 
-    // GET: CinemaRooms/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -149,7 +138,6 @@ public class CinemaRoomsController : Controller
         return View(cinemaRoom);
     }
 
-    // POST: CinemaRooms/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)

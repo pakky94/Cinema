@@ -11,19 +11,19 @@ using CinemaClient.Domain;
 
 namespace CinemaClient.Controllers
 {
-    public class SpectatorsController : Controller
+    public class TicketsController : Controller
     {
         private readonly CinemaContext _context;
 
-        public SpectatorsController(CinemaContext context)
+        public TicketsController(CinemaContext context)
         {
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var spectators = await _context.Spectators.ToListAsync();
-            return View(spectators);
+            var cinemaContext = _context.Tickets.Include(t => t.Screening).Include(t => t.Spectator);
+            return View(await cinemaContext.ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -33,32 +33,16 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var spectator = await _context.Spectators
+            var ticket = await _context.Tickets
+                .Include(t => t.Screening)
+                .Include(t => t.Spectator)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (spectator == null)
+            if (ticket == null)
             {
                 return NotFound();
             }
 
-            return View(spectator);
-        }
-
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Spectator spectator)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(spectator);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(spectator);
+            return View(ticket);
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -68,19 +52,21 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var spectator = await _context.Spectators.FindAsync(id);
-            if (spectator == null)
+            var ticket = await _context.Tickets.FindAsync(id);
+            if (ticket == null)
             {
                 return NotFound();
             }
-            return View(spectator);
+            ViewData["ScreeningId"] = new SelectList(_context.Screenings, "Id", "Id", ticket.ScreeningId);
+            ViewData["SpectatorId"] = new SelectList(_context.Spectators, "Id", "Id", ticket.SpectatorId);
+            return View(ticket);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Spectator spectator)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SpectatorId,ScreeningId,Seat,Price")] Ticket ticket)
         {
-            if (id != spectator.Id)
+            if (id != ticket.Id)
             {
                 return NotFound();
             }
@@ -89,12 +75,12 @@ namespace CinemaClient.Controllers
             {
                 try
                 {
-                    _context.Update(spectator);
+                    _context.Update(ticket);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SpectatorExists(spectator.Id))
+                    if (!TicketExists(ticket.Id))
                     {
                         return NotFound();
                     }
@@ -105,7 +91,9 @@ namespace CinemaClient.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(spectator);
+            ViewData["ScreeningId"] = new SelectList(_context.Screenings, "Id", "Id", ticket.ScreeningId);
+            ViewData["SpectatorId"] = new SelectList(_context.Spectators, "Id", "Id", ticket.SpectatorId);
+            return View(ticket);
         }
 
         public async Task<IActionResult> Delete(int? id)
@@ -115,29 +103,31 @@ namespace CinemaClient.Controllers
                 return NotFound();
             }
 
-            var spectator = await _context.Spectators
+            var ticket = await _context.Tickets
+                .Include(t => t.Screening)
+                .Include(t => t.Spectator)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (spectator == null)
+            if (ticket == null)
             {
                 return NotFound();
             }
 
-            return View(spectator);
+            return View(ticket);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var spectator = await _context.Spectators.FindAsync(id);
-            _context.Spectators.Remove(spectator);
+            var ticket = await _context.Tickets.FindAsync(id);
+            _context.Tickets.Remove(ticket);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SpectatorExists(int id)
+        private bool TicketExists(int id)
         {
-            return _context.Spectators.Any(e => e.Id == id);
+            return _context.Tickets.Any(e => e.Id == id);
         }
     }
 }

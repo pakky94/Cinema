@@ -13,10 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Surname)
+                Nome
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.BirthDate)
@@ -25,21 +22,18 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var spectator in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @spectator.FullName()
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Surname)
+                @spectator.BirthDate.ToShortDateString()
             </td>
             <td>
-                @item.BirthDate.ToShortDateString()
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@spectator.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@spectator.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@spectator.Id">Delete</a>
             </td>
         </tr>
 }
