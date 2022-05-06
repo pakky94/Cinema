@@ -1,4 +1,4 @@
-﻿@model CinemaClient.Domain.CinemaRoom
+﻿@model CinemaRoomEditViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,16 +12,28 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Room.Id" />
             <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
+                <label asp-for="Room.Capacity" class="control-label"></label>
+                <input asp-for="Room.Capacity" class="form-control" />
+                <span asp-validation-for="Room.Capacity" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CurrentScreeningId" class="control-label"></label>
-                <select asp-for="CurrentScreeningId" class="form-control" asp-items="ViewBag.ScreeningId"></select>
-                <span asp-validation-for="CurrentScreeningId" class="text-danger"></span>
+                <label asp-for="Room.CurrentScreeningId" class="control-label"></label>
+                <select asp-for="Room.CurrentScreeningId" class="form-control" >
+                    <option>---</option>
+                    @foreach (var screening in Model.Screenings)
+                    {
+                        @if ( screening.Id == Model.Room.CurrentScreeningId) 
+                        {
+                            <option value="@screening.Id" selected>@screening.Movie.Title</option>
+                        } else
+                        {
+                            <option value="@screening.Id">@screening.Movie.Title</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="Room.CurrentScreeningId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

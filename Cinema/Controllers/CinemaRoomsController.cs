@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using CinemaClient.Data;
 using CinemaClient.Domain;
 using CinemaClient.Services;
+using CinemaClient.Models;
 
 namespace CinemaClient.Controllers;
 
@@ -51,21 +52,22 @@ public class CinemaRoomsController : Controller
 
     public async Task<IActionResult> CreateAsync()
     {
-        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title");
-        return View();
+        var screenings = await _screeningService.GetAll();
+        return View(new CinemaRoomEditViewModel(null, screenings));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CinemaRoom cinemaRoom)
+    public async Task<IActionResult> Create(CinemaRoomEditViewModel vm)
     {
+        var cinemaRoom = vm.Room;
         if (ModelState.IsValid)
         {
             await _roomService.Create(cinemaRoom);
             return RedirectToAction(nameof(Index));
         }
-        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title", cinemaRoom.CurrentScreeningId);
-        return View(cinemaRoom);
+        var screenings = await _screeningService.GetAll();
+        return View(new CinemaRoomEditViewModel(null, screenings));
     }
 
     public async Task<IActionResult> Edit(int? id)
@@ -80,14 +82,15 @@ public class CinemaRoomsController : Controller
         {
             return NotFound();
         }
-        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title", cinemaRoom.CurrentScreeningId);
-        return View(cinemaRoom);
+        var screenings = await _screeningService.GetAll();
+        return View(new CinemaRoomEditViewModel(cinemaRoom, screenings));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, CinemaRoom cinemaRoom)
+    public async Task<IActionResult> Edit(int id, CinemaRoomEditViewModel vm)
     {
+        var cinemaRoom = vm.Room;
         if (id != cinemaRoom.Id)
         {
             return NotFound();
@@ -112,8 +115,8 @@ public class CinemaRoomsController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
-        ViewData["ScreeningId"] = new SelectList(await _screeningService.GetAll(), "Id", "Movie.Title", cinemaRoom.CurrentScreeningId);
-        return View(cinemaRoom);
+        var screenings = await _screeningService.GetAll();
+        return View(new CinemaRoomEditViewModel(cinemaRoom, screenings));
     }
 
     private async Task<bool> CinemaRoomExists(int id)

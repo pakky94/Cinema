@@ -1,4 +1,4 @@
-﻿@model CinemaClient.Domain.CinemaRoom
+﻿@model CinemaRoomEditViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -13,13 +13,20 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Capacity" class="control-label"></label>
-                <input asp-for="Capacity" class="form-control" />
-                <span asp-validation-for="Capacity" class="text-danger"></span>
+                <label asp-for="Room.Capacity" class="control-label"></label>
+                <input asp-for="Room.Capacity" class="form-control" />
+                <span asp-validation-for="Room.Capacity" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CurrentScreeningId" class="control-label"></label>
-                <select asp-for="CurrentScreeningId" class ="form-control" asp-items="ViewBag.ScreeningId"></select>
+                <label asp-for="Room.CurrentScreeningId" class="control-label"></label>
+                <select asp-for="Room.CurrentScreeningId" class="form-control" >
+                    <option >---</option>
+                    @foreach (var screening in Model.Screenings)
+                    {
+                        <option value="@screening.Id">@screening.Movie.Title</option>
+                    }
+                </select>
+                <span asp-validation-for="Room.CurrentScreeningId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
